@@ -72,7 +72,12 @@ function projectBySlug(slug) {
 }
 
 function requireAdmin(request, response) {
-  if (!adminToken || request.headers.authorization !== `Bearer ${adminToken}`) {
+  const authorization = request.headers.authorization ?? '';
+  const basicCredentials = authorization.startsWith('Basic ')
+    ? Buffer.from(authorization.slice(6), 'base64').toString('utf8')
+    : '';
+  const authorized = authorization === `Bearer ${adminToken}` || basicCredentials === `admin:${adminToken}`;
+  if (!adminToken || !authorized) {
     sendError(response, 401, 'Administrator authorization is required');
     return false;
   }

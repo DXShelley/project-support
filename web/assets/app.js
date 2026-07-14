@@ -28,15 +28,8 @@ function renderError() {
   app.innerHTML = '<section class="shell"><h1>项目支持页不可用</h1><p>请检查访问链接是否完整，或稍后再试。</p></section>';
 }
 
-const adminTokenKey = 'project-support-admin-token';
 let adminState = { project: '', status: 'pending' };
-const adminHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem(adminTokenKey)}` });
-
-function renderAdminLogin(message = '') {
-  document.title = '管理员审核 - 项目支持';
-  app.innerHTML = `<section class="shell admin-login"><div class="admin-login-panel"><p class="kicker">管理员审核</p><h1>项目反馈处理台</h1><p>输入部署时配置的 <code>ADMIN_TOKEN</code>。令牌仅保存在当前浏览器会话。</p><form id="admin-login" class="feedback-form"><label>管理员令牌<input name="token" type="password" autocomplete="current-password" required /></label><button>进入审核台</button><p class="form-status">${escapeHtml(message)}</p></form></div></section>`;
-  document.querySelector('#admin-login').addEventListener('submit', (event) => { event.preventDefault(); sessionStorage.setItem(adminTokenKey, new FormData(event.currentTarget).get('token')); bootAdmin(); });
-}
+const adminHeaders = () => ({ 'Content-Type': 'application/json' });
 
 function adminRecord(record) {
   const choices = [['pending', '待审核'], ['published', '公开'], ['resolved', '已解决'], ['hidden', '隐藏']];
@@ -44,22 +37,20 @@ function adminRecord(record) {
 }
 
 function renderAdmin(projects, records) {
-  app.innerHTML = `<div class="shell admin-shell"><header class="admin-head"><div><p class="kicker">管理员审核</p><h1>项目反馈处理台</h1></div><button id="admin-logout" class="secondary-button">退出登录</button></header><section class="admin-filters"><label>项目<select id="admin-project"><option value="">全部项目</option>${projects.map((project) => `<option value="${project.slug}" ${adminState.project === project.slug ? 'selected' : ''}>${escapeHtml(project.name)}</option>`).join('')}</select></label><label>状态<select id="admin-status">${[['pending', '待审核'], ['published', '已公开'], ['resolved', '已解决'], ['hidden', '已隐藏']].map(([value, label]) => `<option value="${value}" ${adminState.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><span>${records.length} 条记录</span></section><section class="admin-records">${records.length ? records.map(adminRecord).join('') : '<p class="empty">当前筛选条件下没有记录。</p>'}</section></div>`;
-  document.querySelector('#admin-logout').onclick = () => { sessionStorage.removeItem(adminTokenKey); renderAdminLogin(); };
+  app.innerHTML = `<div class="shell admin-shell"><header class="admin-head"><div><p class="kicker">管理员审核</p><h1>项目反馈处理台</h1></div></header><section class="admin-filters"><label>项目<select id="admin-project"><option value="">全部项目</option>${projects.map((project) => `<option value="${project.slug}" ${adminState.project === project.slug ? 'selected' : ''}>${escapeHtml(project.name)}</option>`).join('')}</select></label><label>状态<select id="admin-status">${[['pending', '待审核'], ['published', '已公开'], ['resolved', '已解决'], ['hidden', '已隐藏']].map(([value, label]) => `<option value="${value}" ${adminState.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><span>${records.length} 条记录</span></section><section class="admin-records">${records.length ? records.map(adminRecord).join('') : '<p class="empty">当前筛选条件下没有记录。</p>'}</section></div>`;
   document.querySelector('#admin-project').onchange = (event) => { adminState.project = event.target.value; bootAdmin(); };
   document.querySelector('#admin-status').onchange = (event) => { adminState.status = event.target.value; bootAdmin(); };
   document.querySelectorAll('.admin-form').forEach((form) => form.addEventListener('submit', async (event) => { event.preventDefault(); const button = form.querySelector('button'); const note = form.querySelector('.form-status'); button.disabled = true; note.textContent = '正在保存...'; try { const response = await fetch(`/api/admin/feedback/${form.closest('.admin-record').dataset.id}`, { method: 'PATCH', headers: adminHeaders(), body: JSON.stringify(Object.fromEntries(new FormData(form))) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); note.textContent = '已保存。'; setTimeout(bootAdmin, 300); } catch (error) { note.textContent = error.message || '保存失败。'; button.disabled = false; } }));
 }
 
 async function bootAdmin() {
-  if (!sessionStorage.getItem(adminTokenKey)) return renderAdminLogin();
   app.innerHTML = '<section class="shell"><p class="loading">正在加载审核记录...</p></section>';
   try {
     const query = `status=${encodeURIComponent(adminState.status)}${adminState.project ? `&project=${encodeURIComponent(adminState.project)}` : ''}`;
     const [projectsResponse, feedbackResponse] = await Promise.all([fetch('/api/admin/projects', { headers: adminHeaders() }), fetch(`/api/admin/feedback?${query}`, { headers: adminHeaders() })]);
     if (!projectsResponse.ok || !feedbackResponse.ok) throw new Error(projectsResponse.status === 401 ? '登录令牌无效，请重新输入。' : '审核数据加载失败。');
     renderAdmin((await projectsResponse.json()).items, (await feedbackResponse.json()).items);
-  } catch (error) { sessionStorage.removeItem(adminTokenKey); renderAdminLogin(error.message); }
+  } catch (error) { app.innerHTML = `<section class="shell"><h1>管理员验证失败</h1><p>${escapeHtml(error.message || '请检查管理员令牌。')}</p></section>`; }
 }
 
 function recordMarkup(record) {
@@ -138,7 +129,7 @@ function render(project, records) {
 }
 
 async function boot() {
-  if (location.pathname.startsWith('/admin/')) return bootAdmin();
+  if (location.pathname.startsWith('/support/admin/')) return bootAdmin();
   renderLoading();
   const slug = projectSlug();
   try {
