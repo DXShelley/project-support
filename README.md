@@ -18,6 +18,8 @@ https://macosx.kooldns.cn/embed/support.html?project=obsidian-media-claim
 
 `GET /api/admin/feedback?status=pending` 和 `PATCH /api/admin/feedback/{id}` 使用 `Authorization: Bearer $ADMIN_TOKEN` 管理审核状态。公开页面只读取 `published` 与 `resolved`。
 
+已预置的项目：`obsidian-2026`、`ai-translate`、`obsidian-cli-plugins-skill`、`obsidian-image-manager`、`obsidian-media-claim`。
+
 ## 启动
 
 ```bash
@@ -42,3 +44,30 @@ curl -X POST http://127.0.0.1:18081/api/admin/projects \
 ```
 
 然后在项目页面使用 `https://macosx.kooldns.cn/support/your-project/`。
+
+## 审核流程
+
+先加载本机管理员 token：
+
+```bash
+cd /Users/dxshelley/git/project-support
+set -a; source .env; set +a
+```
+
+查看某个项目的待审核记录：
+
+```bash
+curl -fsS 'https://macosx.kooldns.cn/api/admin/feedback?status=pending&project=obsidian-media-claim' \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+```
+
+从响应中取得记录 `id` 后，附带回复并公开：
+
+```bash
+curl -fsS -X PATCH "https://macosx.kooldns.cn/api/admin/feedback/RECORD_ID" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"status":"published","reply":"已确认，计划在后续版本处理。"}'
+```
+
+状态含义：`pending` 待审核，`published` 已公开，`resolved` 已解决且公开，`hidden` 不公开。公开页只显示 `published` 和 `resolved`。

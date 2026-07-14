@@ -8,10 +8,13 @@ const dataDir = process.env.DATA_DIR ?? './data';
 mkdirSync(dataDir, { recursive: true });
 const db = new DatabaseSync(join(dataDir, 'support.sqlite'));
 const adminToken = process.env.ADMIN_TOKEN ?? '';
-const defaultProject = {
-  slug: process.env.DEFAULT_PROJECT_SLUG ?? 'obsidian-media-claim',
-  name: process.env.DEFAULT_PROJECT_NAME ?? 'Obsidian Media Claim'
-};
+const initialProjects = [
+  { slug: 'obsidian-2026', name: 'Obsidian 2026' },
+  { slug: 'ai-translate', name: 'AI Translate' },
+  { slug: 'obsidian-cli-plugins-skill', name: 'Obsidian CLI Plugins Skill' },
+  { slug: 'obsidian-image-manager', name: 'Obsidian Image Manager' },
+  { slug: 'obsidian-media-claim', name: 'Obsidian Media Claim' }
+];
 const rateLimits = new Map();
 
 db.exec(`
@@ -37,11 +40,10 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS feedback_public_idx ON feedback(project_slug, status, updated_at DESC);
 `);
 
-db.prepare('INSERT OR IGNORE INTO projects (slug, name, created_at) VALUES (?, ?, ?)').run(
-  defaultProject.slug,
-  defaultProject.name,
-  new Date().toISOString()
-);
+const insertProject = db.prepare('INSERT OR IGNORE INTO projects (slug, name, created_at) VALUES (?, ?, ?)');
+for (const project of initialProjects) {
+  insertProject.run(project.slug, project.name, new Date().toISOString());
+}
 
 function sendJson(response, status, body) {
   response.writeHead(status, {
