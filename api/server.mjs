@@ -161,8 +161,14 @@ const server = createServer(async (request, response) => {
       const status = url.searchParams.get('status') ?? 'pending';
       const slug = url.searchParams.get('project');
       const rows = slug
-        ? db.prepare('SELECT * FROM feedback WHERE project_slug = ? AND status = ? ORDER BY updated_at DESC').all(slug, status)
-        : db.prepare('SELECT * FROM feedback WHERE status = ? ORDER BY updated_at DESC').all(status);
+        ? db.prepare(`SELECT feedback.*, projects.name AS project_name
+          FROM feedback JOIN projects ON projects.slug = feedback.project_slug
+          WHERE feedback.project_slug = ? AND feedback.status = ?
+          ORDER BY feedback.updated_at DESC`).all(slug, status)
+        : db.prepare(`SELECT feedback.*, projects.name AS project_name
+          FROM feedback JOIN projects ON projects.slug = feedback.project_slug
+          WHERE feedback.status = ?
+          ORDER BY feedback.updated_at DESC`).all(status);
       return sendJson(response, 200, { items: rows });
     }
 
