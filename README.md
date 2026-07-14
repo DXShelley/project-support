@@ -25,7 +25,7 @@ https://macosx.kooldns.cn/embed/support.html?project=obsidian-media-claim
 
 审核页面：[https://macosx.kooldns.cn/support/admin/](https://macosx.kooldns.cn/support/admin/)，需要以用户名 `admin` 和 `.env` 中的 `ADMIN_TOKEN` 通过 HTTP Basic Auth 验证。管理员页面和 `/api/admin/` 未授权访问均返回 `401`。
 
-已预置的项目：`obsidian-2026`、`ai-translate`、`obsidian-cli-plugins-skill`、`obsidian-image-manager`、`obsidian-media-claim`、`awesome-codex-plugins`、`kilo-marketplace`、`awesome-agent-skills`、`railpilot-12306`。
+已预置的项目：`obsidian-2026`、`ai-translate`、`obsidian-cli-plugins-skill`、`obsidian-image-manager`、`obsidian-media-claim`、`railpilot-12306`。
 
 ## 启动
 
