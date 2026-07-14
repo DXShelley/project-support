@@ -1,5 +1,8 @@
 const app = document.querySelector('#app');
 const kinds = { question: '使用问题', feature: '功能建议', service: '服务支持' };
+const projectRepositories = {
+  'obsidian-media-claim': 'openclaw-obsidian-media-claim'
+};
 
 function projectSlug() {
   const segments = location.pathname.split('/').filter(Boolean);
@@ -20,6 +23,11 @@ function dateLabel(value) {
   return new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(value));
 }
 
+function repositoryUrl(project) {
+  const repository = projectRepositories[project.slug] || project.slug;
+  return `https://github.com/DXShelley/${encodeURIComponent(repository)}`;
+}
+
 function renderLoading() {
   app.innerHTML = '<section class="shell"><p class="loading">正在加载项目支持信息...</p></section>';
 }
@@ -33,7 +41,8 @@ const adminHeaders = () => ({ 'Content-Type': 'application/json' });
 
 function adminRecord(record) {
   const choices = [['pending', '待审核'], ['published', '公开'], ['resolved', '已解决'], ['hidden', '隐藏']];
-  return `<article class="admin-record" data-id="${escapeHtml(record.id)}"><div class="record-meta"><span class="type">${kinds[record.kind]}</span><span>${escapeHtml(record.status)}</span><time>${dateLabel(record.created_at)}</time></div><h3>${escapeHtml(record.title)}</h3><p>${escapeHtml(record.content)}</p><p class="contact"><strong>联系方式：</strong>${escapeHtml(record.contact || '未提供')}</p><form class="admin-form"><label>状态<select name="status">${choices.map(([value, label]) => `<option value="${value}" ${record.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label>管理员回复<textarea name="reply" rows="3" maxlength="4000">${escapeHtml(record.reply)}</textarea></label><div class="admin-actions"><button>保存处理结果</button><p class="form-status"></p></div></form></article>`;
+  const projectName = record.project_name || record.project_slug;
+  return `<article class="admin-record" data-id="${escapeHtml(record.id)}"><div class="record-meta"><span class="project">所属项目：${escapeHtml(projectName)}</span><span class="type">${kinds[record.kind]}</span><span>${escapeHtml(record.status)}</span><time>${dateLabel(record.created_at)}</time></div><h3>${escapeHtml(record.title)}</h3><p>${escapeHtml(record.content)}</p><p class="contact"><strong>联系方式：</strong>${escapeHtml(record.contact || '未提供')}</p><form class="admin-form"><label>状态<select name="status">${choices.map(([value, label]) => `<option value="${value}" ${record.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label>管理员回复<textarea name="reply" rows="3" maxlength="4000">${escapeHtml(record.reply)}</textarea></label><div class="admin-actions"><button>保存处理结果</button><p class="form-status"></p></div></form></article>`;
 }
 
 function renderAdmin(projects, records) {
@@ -77,6 +86,18 @@ function render(project, records) {
         <article><img src="/support-assets/zanshangma.png" alt="微信赞赏码" /><h2>微信赞赏码</h2></article>
         <article><img src="/support-assets/zhifubao.png" alt="支付宝二维码" /><h2>支付宝</h2></article>
       </div>
+      <aside class="star-support" aria-label="Star 支持项目">
+        <div>
+          <p class="kicker">Star 支持</p>
+          <h2>为开源项目点亮一颗星</h2>
+          <p>点击 Star 支持项目，举手之劳，人人为我，我为人人。</p>
+          <a class="star-link" href="${repositoryUrl(project)}" target="_blank" rel="noopener noreferrer">Star 项目<span aria-hidden="true">&#9733;</span></a>
+        </div>
+        <figure class="star-example">
+          <img src="/support-assets/github-star-example.png" alt="GitHub 仓库页面示例，右上角可见 Star 按钮" />
+          <figcaption>GitHub Star 操作示例</figcaption>
+        </figure>
+      </aside>
     </section>
 
     <section class="feedback-layout" aria-labelledby="feedback-title">
