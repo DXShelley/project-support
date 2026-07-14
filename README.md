@@ -2,6 +2,9 @@
 
 通用项目支持页，包含通用付款二维码、按项目隔离的使用问题/功能建议/服务支持记录，以及仅展示已审核记录的公开列表。API 与静态站点均运行在 Docker Compose 中。
 
+- [架构说明](docs/ARCHITECTURE.md)
+- [部署与运维](docs/RUNBOOK.md)
+
 ## 链接契约
 
 项目页面必须显式传入项目 slug，不依赖 `Referer`：
@@ -20,9 +23,9 @@ https://macosx.kooldns.cn/embed/support.html?project=obsidian-media-claim
 
 `GET /api/admin/feedback?status=pending` 和 `PATCH /api/admin/feedback/{id}` 使用 `Authorization: Bearer $ADMIN_TOKEN` 管理审核状态。公开页面只读取 `published` 与 `resolved`。
 
-审核页面：[https://macosx.kooldns.cn/support/admin/](https://macosx.kooldns.cn/support/admin/)，需要以用户名 `admin` 和 `ADMIN_TOKEN` 通过 HTTP Basic Auth 验证。
+审核页面：[https://macosx.kooldns.cn/support/admin/](https://macosx.kooldns.cn/support/admin/)，需要以用户名 `admin` 和 `.env` 中的 `ADMIN_TOKEN` 通过 HTTP Basic Auth 验证。管理员页面和 `/api/admin/` 未授权访问均返回 `401`。
 
-已预置的项目：`obsidian-2026`、`ai-translate`、`obsidian-cli-plugins-skill`、`obsidian-image-manager`、`obsidian-media-claim`。
+已预置的项目：`obsidian-2026`、`ai-translate`、`obsidian-cli-plugins-skill`、`obsidian-image-manager`、`obsidian-media-claim`、`awesome-codex-plugins`、`kilo-marketplace`、`awesome-agent-skills`、`railpilot-12306`。
 
 ## 启动
 
