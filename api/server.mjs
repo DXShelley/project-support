@@ -83,6 +83,10 @@ function isValidSlug(slug) {
   return /^[a-z0-9][a-z0-9-]{1,62}$/.test(slug);
 }
 
+function normalizeProjectSlug(value) {
+  return decodeURIComponent(String(value)).trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+}
+
 function isRateLimited(request) {
   const now = Date.now();
   const ip = request.socket.remoteAddress ?? 'unknown';
@@ -108,25 +112,25 @@ function publicFeedback(slug, limit) {
 const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', 'http://localhost');
   const pathname = url.pathname.replace(/\/+$/, '') || '/';
-  const projectMatch = pathname.match(/^\/api\/projects\/([a-z0-9-]+)$/);
-  const feedbackMatch = pathname.match(/^\/api\/projects\/([a-z0-9-]+)\/feedback$/);
+  const projectMatch = pathname.match(/^\/api\/projects\/([^/]+)$/);
+  const feedbackMatch = pathname.match(/^\/api\/projects\/([^/]+)\/feedback$/);
   const adminFeedbackMatch = pathname.match(/^\/api\/admin\/feedback\/([\w-]+)$/);
 
   try {
     if (request.method === 'GET' && projectMatch) {
-      const project = projectBySlug(projectMatch[1]);
+      const project = projectBySlug(normalizeProjectSlug(projectMatch[1]));
       return project ? sendJson(response, 200, project) : sendError(response, 404, 'Project not found');
     }
 
     if (request.method === 'GET' && feedbackMatch) {
-      const project = projectBySlug(feedbackMatch[1]);
+      const project = projectBySlug(normalizeProjectSlug(feedbackMatch[1]));
       if (!project) return sendError(response, 404, 'Project not found');
       const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 20, 1), 50);
       return sendJson(response, 200, { items: publicFeedback(project.slug, limit) });
     }
 
     if (request.method === 'POST' && feedbackMatch) {
-      const project = projectBySlug(feedbackMatch[1]);
+      const project = projectBySlug(normalizeProjectSlug(feedbackMatch[1]));
       if (!project) return sendError(response, 404, 'Project not found');
       if (isRateLimited(request)) return sendError(response, 429, 'Too many submissions. Please try again later.');
       const payload = await readJson(request);
@@ -155,6 +159,12 @@ const server = createServer(async (request, response) => {
         ? db.prepare('SELECT * FROM feedback WHERE project_slug = ? AND status = ? ORDER BY updated_at DESC').all(slug, status)
         : db.prepare('SELECT * FROM feedback WHERE status = ? ORDER BY updated_at DESC').all(status);
       return sendJson(response, 200, { items: rows });
+    }
+
+    if (request.method === 'GET' && pathname === '/api/admin/projects') {
+      if (!requireAdmin(request, response)) return;
+      const projects = db.prepare('SELECT slug, name, enabled FROM projects ORDER BY name').all();
+      return sendJson(response, 200, { items: projects });
     }
 
     if (request.method === 'PATCH' && adminFeedbackMatch) {

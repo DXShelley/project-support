@@ -10,6 +10,8 @@
 https://macosx.kooldns.cn/support/obsidian-media-claim/
 ```
 
+slug 以 GitHub 仓库名称为准：转小写，空格替换为 `-`。例如 `Obsidian Image Manager` 映射为 `obsidian-image-manager`。
+
 嵌入场景可使用：
 
 ```text
@@ -17,6 +19,8 @@ https://macosx.kooldns.cn/embed/support.html?project=obsidian-media-claim
 ```
 
 `GET /api/admin/feedback?status=pending` 和 `PATCH /api/admin/feedback/{id}` 使用 `Authorization: Bearer $ADMIN_TOKEN` 管理审核状态。公开页面只读取 `published` 与 `resolved`。
+
+审核页面：[https://macosx.kooldns.cn/admin/](https://macosx.kooldns.cn/admin/)。
 
 已预置的项目：`obsidian-2026`、`ai-translate`、`obsidian-cli-plugins-skill`、`obsidian-image-manager`、`obsidian-media-claim`。
 
