@@ -14,9 +14,6 @@ const initialProjects = [
   { slug: 'obsidian-cli-plugins-skill', name: 'Obsidian CLI Plugins Skill' },
   { slug: 'obsidian-image-manager', name: 'Obsidian Image Manager' },
   { slug: 'obsidian-media-claim', name: 'Obsidian Media Claim' },
-  { slug: 'awesome-codex-plugins', name: 'Awesome Codex Plugins' },
-  { slug: 'kilo-marketplace', name: 'Kilo Marketplace' },
-  { slug: 'awesome-agent-skills', name: 'Awesome Agent Skills' },
   { slug: 'railpilot-12306', name: 'RailPilot 12306' }
 ];
 const rateLimits = new Map();
