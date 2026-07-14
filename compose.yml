@@ -1,0 +1,22 @@
+services:
+  api:
+    build: ./api
+    environment:
+      DATA_DIR: /data
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Set ADMIN_TOKEN in .env before starting}
+      DEFAULT_PROJECT_SLUG: obsidian-media-claim
+      DEFAULT_PROJECT_NAME: Obsidian Media Claim
+    volumes:
+      - project_support_data:/data
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:18081:80"
+    restart: unless-stopped
+
+volumes:
+  project_support_data:

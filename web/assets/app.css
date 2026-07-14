@@ -1,0 +1,22 @@
+:root { --bg: #101416; --surface: #182024; --surface-2: #202a2e; --line: #3b4748; --text: #eef4f1; --muted: #b3c0bb; --accent: #f0c872; --focus: #7fd3bd; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; color: var(--text); background: #0d1113; font-family: "Noto Sans SC", "PingFang SC", system-ui, sans-serif; }
+button, input, textarea { font: inherit; }
+.shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+.support-panel, .feedback-layout, .records { border: 1px solid var(--line); background: var(--surface); }
+.support-panel { padding: 28px; border-radius: 12px; }
+.kicker { margin: 0; color: var(--accent); font-size: .85rem; font-weight: 700; }
+h1, h2, h3, p { margin-top: 0; } h1, h2, h3 { text-wrap: balance; } h1 { margin: 12px 0; font-size: 2rem; } h2 { font-size: 1.35rem; } p { color: var(--muted); line-height: 1.7; }
+.payments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.payments article { min-width: 0; padding: 16px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; }
+.payments img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; border-radius: 6px; }
+.payments h2 { margin: 14px 0 0; font-size: 1rem; }
+.feedback-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 32px; margin-top: 24px; padding: 28px; border-radius: 12px; }
+.feedback-form { display: grid; gap: 16px; }
+.feedback-form label { display: grid; gap: 7px; color: var(--text); font-weight: 600; }
+fieldset { padding: 0; border: 0; } legend { margin-bottom: 8px; font-weight: 600; }.kind-options { display: flex; flex-wrap: wrap; gap: 8px; }.kind-options label { position: relative; }.kind-options input { position: absolute; opacity: 0; }.kind-options span { padding: 8px 10px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }.kind-options input:checked + span { color: var(--text); border-color: var(--focus); background: #1e3934; }.kind-options input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+input, textarea { width: 100%; padding: 10px 12px; color: var(--text); background: #111719; border: 1px solid var(--line); border-radius: 6px; } input:focus, textarea:focus { outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--focus); } textarea { resize: vertical; }
+button { justify-self: start; padding: 10px 16px; color: #11201b; background: var(--focus); border: 0; border-radius: 6px; font-weight: 700; cursor: pointer; } button:hover { background: #a3ead5; } button:disabled { opacity: .65; cursor: wait; }.form-status { min-height: 1.7em; margin: -4px 0 0; font-size: .9rem; }.honeypot { position: absolute; left: -9999px; }
+.records { margin-top: 24px; padding: 28px; border-radius: 12px; }.section-title { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; border-bottom: 1px solid var(--line); margin-bottom: 4px; padding-bottom: 16px; }.section-title h2 { margin: 8px 0 0; }.section-title > span { color: var(--muted); white-space: nowrap; }
+.record { padding: 20px 0; border-bottom: 1px solid var(--line); }.record:last-child { border-bottom: 0; }.record-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font-size: .85rem; }.type { color: var(--accent); }.record h3 { margin: 10px 0 8px; font-size: 1.08rem; }.record p { white-space: pre-wrap; margin-bottom: 0; }.reply { margin-top: 14px; padding: 14px; background: #111719; border-radius: 6px; }.reply strong { color: var(--focus); }.reply p { margin-top: 6px; }.empty, .loading { padding: 28px 0; }
+@media (max-width: 760px) { .shell { width: min(100% - 24px, 1120px); padding-top: 16px; }.payments, .feedback-layout { grid-template-columns: 1fr; }.support-panel, .feedback-layout, .records { padding: 20px; }.payments { gap: 12px; }.payments article { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 14px; }.payments img { grid-row: span 2; }.payments h2 { margin: 0; } }
